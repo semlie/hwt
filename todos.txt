@@ -1,3 +1,11 @@
-v.0
-pdf try to present as a img to improve the results 
+v.1
+export to jsonl
+pdf tries to present as an image as well as a text to improve the results
+besic exceptions 
+
+v.2 
 html cleanup to reduce tokens 
+Concurrently 
+
+v.3 
+Optimize the prompts
