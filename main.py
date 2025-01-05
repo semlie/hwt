@@ -1,7 +1,7 @@
 from core.utils import get_files_with_extensions, load_image, load_pdf
 from core.agents import ChatGoogleGenerativeAIAgent
 from dotenv import load_dotenv
-
+from core.models import RestaurantMenuExtractionResult
 load_dotenv()
 
 
@@ -12,9 +12,12 @@ def process_html(html_path):
 
 
 def process_image(image_path):
+    agent = ChatGoogleGenerativeAIAgent()
     image = load_image(image_path)
-
-    return image
+    llm_res = agent.generate_response_with_image(image)
+    res = RestaurantMenuExtractionResult(
+        file_name=image_path, **llm_res.model_dump())
+    return res.model_dump()
 
 
 def process_pdf(pdf_path):
@@ -24,7 +27,7 @@ def process_pdf(pdf_path):
 # read all files in a folder
 def run(folder_path):
     valid_extensions = ["png"]  # ["pdf", "jpg", "html", "png"]
-    agent = ChatGoogleGenerativeAIAgent()
+
     files_by_ext = get_files_with_extensions(folder_path, valid_extensions)
     for ext, files in files_by_ext.items():
         for file in files:
@@ -32,8 +35,7 @@ def run(folder_path):
                 pages = process_pdf(file)
                 print(f"Loaded {len(pages)} pages from {file}")
             elif ext in ["jpg", "png"]:
-                image = process_image(file)
-                res = agent.generate_response_with_image(image)
+                res = process_image(file)
                 print(f"Loaded image from {file} the llm results are: {res}")
             elif ext == "html":
                 html = process_html(file)
