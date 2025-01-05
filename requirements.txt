@@ -8,3 +8,4 @@ langchain-google-genai
 pypdf
 pillow
 python-dotenv
+pdf2image
