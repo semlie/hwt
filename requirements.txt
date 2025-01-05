@@ -4,4 +4,7 @@ numpy
 langchain
 langgraph
 langchain-community
+langchain-google-genai
 pypdf
+pillow
+python-dotenv
