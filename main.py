@@ -21,19 +21,25 @@ def process_image(image_path):
 
 
 def process_pdf(pdf_path):
-    return load_pdf(pdf_path)
+    pdf_text = load_pdf(pdf_path)
+    txt = "\n ".join([page.page_content for page in pdf_text])
+    agent = ChatGoogleGenerativeAIAgent()
+    llm_res = agent.generate_response_with_pdf(txt)
+    res = RestaurantMenuExtractionResult(
+        file_name=pdf_path, **llm_res.model_dump())
+    return res.model_dump()
 
 
 # read all files in a folder
 def run(folder_path):
-    valid_extensions = ["png"]  # ["pdf", "jpg", "html", "png"]
+    valid_extensions = ["pdf"]  # ["pdf", "jpg", "html", "png"]
 
     files_by_ext = get_files_with_extensions(folder_path, valid_extensions)
     for ext, files in files_by_ext.items():
         for file in files:
             if ext == "pdf":
                 pages = process_pdf(file)
-                print(f"Loaded {len(pages)} pages from {file}")
+                print(f"Loaded pdf from {file}, the llm results are: {pages}")
             elif ext in ["jpg", "png"]:
                 res = process_image(file)
                 print(f"Loaded image from {file} the llm results are: {res}")

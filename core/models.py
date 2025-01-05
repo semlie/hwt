@@ -9,7 +9,7 @@ class MenuItem(BaseModel):
     ingredients: List[str] = Field(
         default_factory=list, description="A list of ingredients for the menu item")
     category: str = Field(default="Uncategorized",
-                          description="The category of the menu item (e.g., appetizer, main dish, dessert)")
+                          description="The category or how the reserants groups the menu item ")
     correction_score: float = Field(
         default=0.0, description="The correction score indicating how accurate or corrected the item information is between 0 and 1")
 
