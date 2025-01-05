@@ -1,0 +1,3 @@
+v.0
+pdf try to present as a img to improve the results 
+html cleanup to reduce tokens 

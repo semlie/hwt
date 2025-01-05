@@ -8,7 +8,12 @@ load_dotenv()
 def process_html(html_path):
     with open(html_path, "r") as f:
         html = f.read()
-    return html
+
+    agent = ChatGoogleGenerativeAIAgent()
+    llm_res = agent.generate_response_with_html(html)
+    res = RestaurantMenuExtractionResult(
+        file_name=html_path, **llm_res.model_dump())
+    return res.model_dump()
 
 
 def process_image(image_path):
@@ -32,7 +37,8 @@ def process_pdf(pdf_path):
 
 # read all files in a folder
 def run(folder_path):
-    valid_extensions = ["pdf"]  # ["pdf", "jpg", "html", "png"]
+    result = []
+    valid_extensions = ["pdf", "jpg", "html", "png"]
 
     files_by_ext = get_files_with_extensions(folder_path, valid_extensions)
     for ext, files in files_by_ext.items():
@@ -40,15 +46,20 @@ def run(folder_path):
             if ext == "pdf":
                 pages = process_pdf(file)
                 print(f"Loaded pdf from {file}, the llm results are: {pages}")
+                result.append(pages)
             elif ext in ["jpg", "png"]:
-                res = process_image(file)
-                print(f"Loaded image from {file} the llm results are: {res}")
+                img = process_image(file)
+                print(f"Loaded image from {file} the llm results are: {img}")
+                result.append(img)
             elif ext == "html":
                 html = process_html(file)
-                print(f"Loaded html from {file}")
+                print(f"Loaded html from {file}, the llm results are: {html}")
+                result.append(html)
             else:
                 print(f"Unsupported file type: {ext}")
+    return result
 
 
 if __name__ == "__main__":
-    run("./data")
+    res = run("./data")
+    print(res)

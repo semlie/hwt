@@ -30,3 +30,11 @@ def prompt_template_txt():
 
 
     ])
+
+
+def prompt_template_html():
+    return ChatPromptTemplate.from_messages([
+        ("system", system_prompt_txt),
+        ("user", "This is the html content: html```{the_html}```"),
+        ("user", instract_prompt_text)
+    ])
