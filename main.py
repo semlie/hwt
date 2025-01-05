@@ -1,4 +1,4 @@
-from core.utils import get_files_with_extensions, load_image, load_pdf
+from core.utils import get_files_with_extensions, list_to_jsonl, load_image, load_pdf, pdf_to_image
 from core.agents import ChatGoogleGenerativeAIAgent
 from dotenv import load_dotenv
 from core.models import RestaurantMenuExtractionResult
@@ -26,10 +26,10 @@ def process_image(image_path):
 
 
 def process_pdf(pdf_path):
-    pdf_text = load_pdf(pdf_path)
-    txt = "\n ".join([page.page_content for page in pdf_text])
+    pdf_text = pdf_to_image(pdf_path)
+    # txt = "\n ".join([page.page_content for page in pdf_text])
     agent = ChatGoogleGenerativeAIAgent()
-    llm_res = agent.generate_response_with_pdf(txt)
+    llm_res = agent.generate_response_with_pdf(pdf_text)
     res = RestaurantMenuExtractionResult(
         file_name=pdf_path, **llm_res.model_dump())
     return res.model_dump()
@@ -43,23 +43,30 @@ def run(folder_path):
     files_by_ext = get_files_with_extensions(folder_path, valid_extensions)
     for ext, files in files_by_ext.items():
         for file in files:
-            if ext == "pdf":
-                pages = process_pdf(file)
-                print(f"Loaded pdf from {file}, the llm results are: {pages}")
-                result.append(pages)
-            elif ext in ["jpg", "png"]:
-                img = process_image(file)
-                print(f"Loaded image from {file} the llm results are: {img}")
-                result.append(img)
-            elif ext == "html":
-                html = process_html(file)
-                print(f"Loaded html from {file}, the llm results are: {html}")
-                result.append(html)
-            else:
-                print(f"Unsupported file type: {ext}")
+            try:
+                if ext == "pdf":
+                    pages = process_pdf(file)
+                    print(f"Loaded pdf from {
+                          file}, the llm results are: {pages}")
+                    result.append(pages)
+                elif ext in ["jpg", "png"]:
+                    img = process_image(file)
+                    print(f"Loaded image from {
+                          file} the llm results are: {img}")
+                    result.append(img)
+                elif ext == "html":
+                    html = process_html(file)
+                    print(f"Loaded html from {
+                          file}, the llm results are: {html}")
+                    result.append(html)
+                else:
+                    print(f"Unsupported file type: {ext}")
+            except Exception as e:
+                print(f"Error processing file {file}: {e}")
     return result
 
 
 if __name__ == "__main__":
     res = run("./data")
+    list_to_jsonl(res, "output.jsonl")
     print(res)
